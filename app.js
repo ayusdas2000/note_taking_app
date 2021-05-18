@@ -13,14 +13,16 @@ app.get('',(req,res)=>{
     })
 })
 
-app.get('/add', (req,res) =>{
+app.post('/add', (req,res) =>{
     if(!req.query.title){
         return res.send({
+            Error: 404,
             Message: 'Title can not be left blank'
         })
     }
     if(!req.query.body){
         return res.send({
+            Error: 404,
             Message: 'Body can not be left blank'
         })
     }
@@ -30,8 +32,9 @@ app.get('/add', (req,res) =>{
     })
 })
 
-app.get('/add/*',(req,res) =>{
+app.post('/add/*',(req,res) =>{
     return res.send({
+        Error: 404,
         Message: 'Query not added in proper format',
         Correct_format: '/add?title=ur_title&body=ur_body'
     })
@@ -41,15 +44,17 @@ app.get('/list',(req,res)=>{
     const note = notes.listNotes()
     if(!note){
         return res.send({
+            Error: 504,
             Message: 'Notes is empty'
         })
     }
     return res.send(note)
 })
 
-app.get('/remove',(req,res)=>{
+app.post('/remove',(req,res)=>{
     if(!req.query.title){
         return res.send({
+            Error: 404,
             Message: 'Title cannot be left blank'
         })
     }
@@ -59,14 +64,16 @@ app.get('/remove',(req,res)=>{
     })
 })
 
-app.get('/modify',(req,res)=>{
+app.post('/modify',(req,res)=>{
     if(!req.query.title){
         return res.send({
+            Error: '400',
             Message: 'Title can not be left blank'
         })
     }
     if(!req.query.body){
         return res.send({
+            Error: '400',
             Message: 'Body can not be left blank'
         })
     }
@@ -76,7 +83,7 @@ app.get('/modify',(req,res)=>{
     })
 })
 
-app.get('/modify/*',(req,res) =>{
+app.post('/modify/*',(req,res) =>{
     return res.send({
         Message: 'Query not added in proper format',
         Correct_format: '/modify?title=ur_title&body=ur_body'
@@ -86,6 +93,7 @@ app.get('/modify/*',(req,res) =>{
 app.get('/get',(req,res)=>{
     if(!req.query.title){
         return res.send({
+            Error: '400',
             Message: 'title cannot be left blank'
         })
     }
