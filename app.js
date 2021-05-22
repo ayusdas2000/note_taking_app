@@ -13,7 +13,7 @@ app.get('',(req,res)=>{
     })
 })
 
-app.post('/add', (req,res) =>{
+app.post('/add', async(req,res) =>{
     if(!req.query.title){
         return res.send({
             Error: 404,
@@ -26,7 +26,7 @@ app.post('/add', (req,res) =>{
             Message: 'Body can not be left blank'
         })
     }
-    const note = notes.addNote(req.query.title,req.query.body)
+    const note = await notes.addNote(req.query.title,req.query.body)
     return res.send({
         Message: note
     })
@@ -40,8 +40,8 @@ app.post('/add/*',(req,res) =>{
     })
 })
 
-app.get('/list',(req,res)=>{
-    const note = notes.listNotes()
+app.get('/list',async (req,res)=>{
+    const note = await notes.listNotes()
     if(!note){
         return res.send({
             Error: 504,
@@ -51,20 +51,20 @@ app.get('/list',(req,res)=>{
     return res.send(note)
 })
 
-app.post('/remove',(req,res)=>{
+app.post('/remove',async (req,res)=>{
     if(!req.query.title){
         return res.send({
             Error: 404,
             Message: 'Title cannot be left blank'
         })
     }
-    const note = notes.removeNote(req.query.title)
+    const note = await notes.removeNote(req.query.title)
     return res.send({
         Message: note
     })
 })
 
-app.post('/modify',(req,res)=>{
+app.post('/modify',async(req,res)=>{
     if(!req.query.title){
         return res.send({
             Error: '400',
@@ -77,7 +77,7 @@ app.post('/modify',(req,res)=>{
             Message: 'Body can not be left blank'
         })
     }
-    note = notes.modifyNote(req.query.title,req.query.body)
+    note = await notes.modifyNote(req.query.title,req.query.body)
     return res.send({
         Message: 'Note modified successfully'
     })
@@ -90,14 +90,14 @@ app.post('/modify/*',(req,res) =>{
     })
 })
 
-app.get('/get',(req,res)=>{
+app.get('/get',async(req,res)=>{
     if(!req.query.title){
         return res.send({
             Error: '400',
             Message: 'title cannot be left blank'
         })
     }
-    const note = notes.getNotes(req.query.title)
+    const note = await notes.getNotes(req.query.title)
     return res.send(note)
 })
  

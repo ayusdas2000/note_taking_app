@@ -1,23 +1,27 @@
 const fs = require('fs')
 const chalk = require('chalk')
+const { promisify } = require('util')
+const readFileAsync = promisify(fs.readFile)
+const writeFileAsync = promisify(fs.writeFile)
 
 
-const getNotes = (title) => {
-    const notes = loadNotes()
+const getNotes = async(title) => {
+    const notes = await loadNotes()
     note = notes.filter((note) => note.title===title)
     return note    
 }
 
-const addNote = (title,body) => {
+const addNote = async(title,body) => {
     //console.log("here is present")
-    const notes = loadNotes()
+    const notes = await loadNotes()
+    console.log("working")
     const duplicateNotes = notes.find((note) => note.title === title) 
     if (!duplicateNotes){
         notes.push({
             title: title,
             body: body,
         })
-        saveNotes(notes)
+        await saveNotes(notes)
         return 'Note added successfully'
     }
     else{
@@ -26,8 +30,8 @@ const addNote = (title,body) => {
     
 }
 
-const removeNote = (title) => {
-    const notes = loadNotes();
+const removeNote = async(title) => {
+    const notes = await loadNotes();
     const notesToKeep = notes.filter((note) => note.title!==title)
 
     if (notes.length > notesToKeep.length){
@@ -40,8 +44,8 @@ const removeNote = (title) => {
     //console.log(title)
 }
 
-const modifyNote = (title,body) => {
-    const notes = loadNotes();
+const modifyNote = async(title,body) => {
+    const notes = await loadNotes();
     const notesToKeep = notes.filter((note) => note.title!==title)
     notesToKeep.push({
         title: title,
@@ -54,19 +58,14 @@ const modifyNote = (title,body) => {
     return notesToKeep
 }
 
-const listNotes = () => {
-    const notes = loadNotes()
-
-    //console.log(chalk.inverse('Your notes'))
-
-    // notes.forEach((note) => {
-    //     console.log(note.title)
-    // })
+const listNotes = async() => {
+    const notes = await loadNotes()
+    //console.log(notes)
     return notes
 }
 
-const readNote = (title) =>{
-    const notes = loadNotes()
+const readNote = async(title) =>{
+    const notes = await loadNotes()
     const note = notes.find((note)=>note.title===title)
 
     if(note){
@@ -79,17 +78,19 @@ const readNote = (title) =>{
 }
 
 
-const saveNotes = (notes) => {
+const saveNotes = async (notes) => {
     const dataJSON = JSON.stringify(notes)
-    fs.writeFileSync('notes.json',dataJSON)
+    await writeFileAsync('notes.json',dataJSON)
 }
 
-const loadNotes = ()=> {
+const loadNotes = async()=> {
     try {
-        const dataBuffer = fs.readFileSync('notes.json')
+        const dataBuffer = await readFileAsync('notes.json')
         const dataJSON = dataBuffer.toString()
+        //console.log(dataJSON)
         return JSON.parse(dataJSON)
     } catch (e) {
+        console.log(e)
         return []
     }
         
@@ -105,3 +106,7 @@ module.exports = {
     readNote: readNote,
     modifyNote: modifyNote
 }
+
+// const returnValue=data.toString()
+            // console.log(returnValue)
+                // return returnValue
