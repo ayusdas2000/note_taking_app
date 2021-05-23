@@ -3,6 +3,8 @@ const express = require('express')
 const notes = require('./notes.js')
 const app = express()
 
+app.use(express.urlencoded({extended : false}))
+
 console.log(path)
 
 app.get('',(req,res)=>{
@@ -14,19 +16,19 @@ app.get('',(req,res)=>{
 })
 
 app.post('/add', async(req,res) =>{
-    if(!req.query.title){
+    if(!req.body.title){
         return res.send({
             Error: 404,
             Message: 'Title can not be left blank'
         })
     }
-    if(!req.query.body){
+    if(!req.body.body){
         return res.send({
             Error: 404,
             Message: 'Body can not be left blank'
         })
     }
-    const note = await notes.addNote(req.query.title,req.query.body)
+    const note = await notes.addNote(req.body.title,req.body.body)
     return res.send({
         Message: note
     })
@@ -52,32 +54,32 @@ app.get('/list',async (req,res)=>{
 })
 
 app.post('/remove',async (req,res)=>{
-    if(!req.query.title){
+    if(!req.body.title){
         return res.send({
             Error: 404,
             Message: 'Title cannot be left blank'
         })
     }
-    const note = await notes.removeNote(req.query.title)
+    const note = await notes.removeNote(req.body.title)
     return res.send({
         Message: note
     })
 })
 
 app.post('/modify',async(req,res)=>{
-    if(!req.query.title){
+    if(!req.body.title){
         return res.send({
             Error: '400',
             Message: 'Title can not be left blank'
         })
     }
-    if(!req.query.body){
+    if(!req.body.body){
         return res.send({
             Error: '400',
             Message: 'Body can not be left blank'
         })
     }
-    note = await notes.modifyNote(req.query.title,req.query.body)
+    note = await notes.modifyNote(req.body.title,req.body.body)
     return res.send({
         Message: 'Note modified successfully'
     })
