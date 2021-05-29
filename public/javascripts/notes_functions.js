@@ -2,26 +2,54 @@ const fs = require('fs')
 const { promisify } = require('util')
 const readFileAsync = promisify(fs.readFile)
 const writeFileAsync = promisify(fs.writeFile)
+const mysql = require('mysql')
+
+
+/**
+ * setting up the database connection
+ */
+const poolConnection = mysql.createPool({
+    connectionLimit: 10,
+    host           : 'localhost',
+    user           : 'root',
+    password       : '',
+    database       : 'notes_database'
+  })
 
 /**
  * getNotes function simply takes the title of the note and returns its body
  * @param {*} title 
  * @returns  the status and the note
  */
-const getNotes = async(title) => {
+const getNotes = async(req,res) => {
     try{
-        const notes = await loadNotes()
-        note = notes.filter((note) => note.title===title)
-        if(!note.length){
-            return ({
-                status: 200,
-                message: 'Note with title not present'
-            })
-        }
-        else return ({
-            status: 501,
-            message: note
-        })
+        poolConnection.getConnection(async(err,connection)=>{
+            if(err) throw err
+            console.log(connection.threadId)
+            await connection.query('SELECT title FROM notes WHERE title = ?',req.body.title,(err,column)=>{
+                if(!err && Object.keys(column).length===0){
+                    return res.status(501).send({
+                        message: 'note not present'
+                    })
+                }
+                else if(!err && Object.keys(column).length!==0){
+                    connection.query(' SELECT * FROM notes WHERE title = ?',req.body.title,(err,rows)=>{
+                        if(!err){
+                            console.log(rows)
+                            return res.status(201).send({
+                                message: rows[0]
+                            })
+                        }
+                        else{
+                            console.log(err)
+                        }
+                    })
+                }
+                else{
+                    console.log(err)
+                }
+            })    
+        })   
     }
     catch(e){
         console.log(e)
@@ -31,64 +59,82 @@ const getNotes = async(title) => {
 
 /**
  * addNote function takes the title and body from us
- * and adds it to the json file
+ * and inserts it into the sql database
  * @param {*} title 
  * @param {*} body 
  * @returns the status and the message
  */
-const addNote = async(title,body) => {
+const addNote = (req,res) => {
     try{
-        const notes = await loadNotes()
-        const duplicateNotes = notes.find((note) => note.title === title) 
-        if (!duplicateNotes){
-            notes.push({
-                title: title,
-                body: body,
-            })
-            await saveNotes(notes)
-            return ({
-                status: 201,
-                message:'Note added successfully'
-            })
-        }
-        else{
-            return {
-                status: 501,
-                message:'Note title taken'
-            }
-        }
+        poolConnection.getConnection(async(err,connection)=>{
+            if(err) throw err
+            console.log(connection.threadId)
+            await connection.query('SELECT title FROM notes WHERE title = ?',req.body.title,(err,column)=>{
+                if(!err && Object.keys(column).length!==0){
+                    return res.status(501).send({
+                        message: 'note already present'
+                    })
+                }
+                else if(!err && Object.keys(column).length===0){
+                    connection.query('INSERT INTO notes SET ?',req.body,(err,rows)=>{
+                        if(!err){
+                            return res.status(201).send({
+                                message: 'note successfully added'
+                            })
+                        }
+                        else{
+                            console.log(err)
+                        }
+                    })
+                }
+                else{
+                    console.log(err)
+                }
+            })    
+        })   
     }
     catch(e){
         console.log(e)
-    }   
+    }
     
 }
 
 
 /**
- * removeNote takes the title and deletes that note from the json
+ * removeNote takes the title and deletes that note from the sql database
  * @param {} title 
  * @returns the status and the message
  */
-const removeNote = async(title) => {
+const removeNote = (req,res) => {
     try{
-        const notes = await loadNotes();
-        const notesToKeep = notes.filter((note) => note.title!==title)
-
-        if (notes.length > notesToKeep.length){
-            saveNotes(notesToKeep)
-            return {
-                status: 201,
-                message:'Note removed Successfully'  
-            }       
-        }
-        else{
-            return {
-                status: 501,
-                message: 'Note not present'
-            }
-        }
-    }catch(e){
+        poolConnection.getConnection(async(err,connection)=>{
+            if(err) throw err
+            console.log(connection.threadId)
+            await connection.query('SELECT title FROM notes WHERE title = ?',req.body.title,(err,column)=>{
+                if(!err && Object.keys(column).length===0){
+                    return res.status(501).send({
+                        message: 'note not present'
+                    })
+                }
+                else if(!err && Object.keys(column).length!==0){
+                    connection.query('DELETE FROM notes WHERE title = ?',req.body.title,(err,rows)=>{
+                        if(!err){
+                            return res.status(201).send({
+                                message: 'note successfully deleted'
+                            })
+                        }
+                        else{
+                            console.log(err)
+                        }
+                    })
+                }
+                else{
+                    console.log(err)
+                }
+            })    
+        })   
+    }
+    catch(e){
         console.log(e)
     }
 }
@@ -96,25 +142,41 @@ const removeNote = async(title) => {
 
 /**
  * modifyNote takes the title and the body
- * modifiesy it with the new body
+ * modify it with the new body
  * @param {*} title 
  * @param {*} body 
  * @returns the status and the message
  */
-const modifyNote = async(title,body) => {
+const modifyNote = async(req,res) => {
     try{
-        const notes = await loadNotes();
-        const notesToKeep = notes.filter((note) => note.title!==title)
-        notesToKeep.push({
-            title: title,
-            body : body
-        })
-        saveNotes(notesToKeep)
-        return ({
-            status: 201,
-            message: 'Note modified successfully'
-        })
+        poolConnection.getConnection(async(err,connection)=>{
+            if(err) throw err
+            console.log(connection.threadId)
+            await connection.query('SELECT title FROM notes WHERE title = ?',req.body.title,(err,column)=>{
+                if(!err && Object.keys(column).length===0){
+                    return res.status(501).send({
+                        message: 'note not present'
+                    })
+                }
+                else if(!err && Object.keys(column).length!==0){
+                    connection.query('UPDATE notes SET body = ? WHERE title =?',[req.body.body,req.body.title],(err,rows)=>{
+                        if(!err){
+                            return res.status(201).send({
+                                message: 'note successfully modified'
+                            })
+                        }
+                        else{
+                            console.log(err)
+                        }
+                    })
+                }
+                else{
+                    console.log(err)
+                }
+            })    
+        })   
     }
+
     catch(e){
         console.log(e)
     }    
@@ -125,10 +187,27 @@ const modifyNote = async(title,body) => {
  * listNotes simply returns the list of notes
  * @returns the list of notes
  */
-const listNotes = async() => {
+const listNotes = (req,res) => {
     try{
-        const notes = await loadNotes()
-        return notes
+        poolConnection.getConnection(async(err,connection)=>{
+            if(err) throw err
+            console.log(connection.threadId)
+            await connection.query('SELECT * FROM notes',(err,rows)=>{
+                if(!err){
+                    if(Object.keys(rows).length===0){
+                        return res.status(504).send({
+                            message: 'notes empty'
+                        })
+                    }
+                    return res.status(200).send({
+                        message: rows
+                    })
+                }
+                else{
+                    console.log(err)
+                }
+            })         
+        })   
     }
     catch(e){
         console.log(e)
@@ -136,37 +215,6 @@ const listNotes = async() => {
 }
 
 
-/**
- * saveNotes function acts as an helper function to 
- * other function to save function
- * @param {*} notes 
- */
-const saveNotes = async (notes) => {
-    try{
-        const dataJSON = JSON.stringify(notes)
-        await writeFileAsync('notes.json',dataJSON)
-    }
-    catch(e){
-        console.log(e)
-    }    
-}
-
-
-/**
- * loadNotes function loads the notes
- * from the json file
- * @returns 
- */
-const loadNotes = async()=> {
-    try {
-        const dataBuffer = await readFileAsync('notes.json')
-        const dataJSON = dataBuffer.toString()
-        return JSON.parse(dataJSON)
-    } catch (e) {
-        return []
-    }
-        
-}
 
 
 
