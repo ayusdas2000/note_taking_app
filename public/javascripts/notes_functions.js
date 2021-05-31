@@ -1,27 +1,25 @@
 const fs = require('fs')
-const { promisify } = require('util')
-const readFileAsync = promisify(fs.readFile)
-const writeFileAsync = promisify(fs.writeFile)
+const { notes_sequelize } = require('../../models')//implementation of sequelizer
+
 
 /**
  * getNotes function simply takes the title of the note and returns its body
  * @param {*} title 
  * @returns  the status and the note
  */
-const getNotes = async(title) => {
+const getNotes = async(req,res) => {
     try{
-        const notes = await loadNotes()
-        note = notes.filter((note) => note.title===title)
-        if(!note.length){
-            return ({
-                status: 200,
-                message: 'Note with title not present'
+        const result = await notes_sequelize.findAll({where: {title: req.body.title}})
+        if(result.length === 0){
+            res.status(504).send({
+                message: 'note not present'
             })
         }
-        else return ({
-            status: 501,
-            message: note
-        })
+        else{
+            res.status(201).send({
+                message: result
+            })
+        }         
     }
     catch(e){
         console.log(e)
@@ -31,64 +29,57 @@ const getNotes = async(title) => {
 
 /**
  * addNote function takes the title and body from us
- * and adds it to the json file
+ * and inserts it into the sql database
  * @param {*} title 
  * @param {*} body 
  * @returns the status and the message
  */
-const addNote = async(title,body) => {
+const addNote = async(req,res) => {
     try{
-        const notes = await loadNotes()
-        const duplicateNotes = notes.find((note) => note.title === title) 
-        if (!duplicateNotes){
-            notes.push({
-                title: title,
-                body: body,
-            })
-            await saveNotes(notes)
-            return ({
-                status: 201,
-                message:'Note added successfully'
+        const result = await notes_sequelize.findAll({where: {title: req.body.title}})
+        if(result.length !== 0){
+            res.status(501).send({
+                message: 'notes title taken'
             })
         }
         else{
-            return {
-                status: 501,
-                message:'Note title taken'
-            }
-        }
+            notes_sequelize.create({
+                title: req.body.title,
+                body: req.body.body
+            })
+            res.status(201).send({
+                message: 'note successfully inserted'
+            })
+        }         
     }
     catch(e){
         console.log(e)
-    }   
+    }
     
 }
 
 
 /**
- * removeNote takes the title and deletes that note from the json
+ * removeNote takes the title and deletes that note from the sql database
  * @param {} title 
  * @returns the status and the message
  */
-const removeNote = async(title) => {
+const removeNote = async(req,res) => {
     try{
-        const notes = await loadNotes();
-        const notesToKeep = notes.filter((note) => note.title!==title)
-
-        if (notes.length > notesToKeep.length){
-            saveNotes(notesToKeep)
-            return {
-                status: 201,
-                message:'Note removed Successfully'  
-            }       
+        const result = await notes_sequelize.findAll({where: {title: req.body.title}})
+        if(result.length === 0){
+            res.status(504).send({
+                message: 'note not present'
+            })
         }
         else{
-            return {
-                status: 501,
-                message: 'Note not present'
-            }
-        }
-    }catch(e){
+            notes_sequelize.destroy({ where: {title: req.body.title} })
+            res.status(201).send({
+                message: 'note successfully deleted'
+            })
+        }         
+    }
+    catch(e){
         console.log(e)
     }
 }
@@ -96,24 +87,25 @@ const removeNote = async(title) => {
 
 /**
  * modifyNote takes the title and the body
- * modifiesy it with the new body
+ * modify it with the new body
  * @param {*} title 
  * @param {*} body 
  * @returns the status and the message
  */
-const modifyNote = async(title,body) => {
+const modifyNote = async(req,res) => {
     try{
-        const notes = await loadNotes();
-        const notesToKeep = notes.filter((note) => note.title!==title)
-        notesToKeep.push({
-            title: title,
-            body : body
-        })
-        saveNotes(notesToKeep)
-        return ({
-            status: 201,
-            message: 'Note modified successfully'
-        })
+        const result = await notes_sequelize.findAll({where: {title: req.body.title}})
+        if(result.length === 0){
+            res.status(504).send({
+                message: 'note not present'
+            })
+        }
+        else{
+            notes_sequelize.update({body: req.body.body},{where: {title: req.body.title}})
+            res.status(201).send({
+                message: 'note successfully modified'
+            })
+        }         
     }
     catch(e){
         console.log(e)
@@ -125,10 +117,19 @@ const modifyNote = async(title,body) => {
  * listNotes simply returns the list of notes
  * @returns the list of notes
  */
-const listNotes = async() => {
+const listNotes = async(req,res) => {
     try{
-        const notes = await loadNotes()
-        return notes
+        const result = await notes_sequelize.findAll()
+        if(result.length === 0){
+            res.status(504).send({
+                message: 'notes empty'
+            })
+        }
+        else{
+            res.status(200).send({
+                notes: result
+            })
+        } 
     }
     catch(e){
         console.log(e)
@@ -136,37 +137,6 @@ const listNotes = async() => {
 }
 
 
-/**
- * saveNotes function acts as an helper function to 
- * other function to save function
- * @param {*} notes 
- */
-const saveNotes = async (notes) => {
-    try{
-        const dataJSON = JSON.stringify(notes)
-        await writeFileAsync('notes.json',dataJSON)
-    }
-    catch(e){
-        console.log(e)
-    }    
-}
-
-
-/**
- * loadNotes function loads the notes
- * from the json file
- * @returns 
- */
-const loadNotes = async()=> {
-    try {
-        const dataBuffer = await readFileAsync('notes.json')
-        const dataJSON = dataBuffer.toString()
-        return JSON.parse(dataJSON)
-    } catch (e) {
-        return []
-    }
-        
-}
 
 
 

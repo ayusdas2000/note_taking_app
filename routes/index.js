@@ -5,6 +5,8 @@ const validator = require('../public/javascripts/validator.js')
 
 
 
+
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.send({
@@ -20,18 +22,8 @@ router.get('/', function(req, res, next) {
  * Using post request:
  * Using addmodValidation from validator.js
  */
-router.post('/add', validator.addmodValidation, validator.errMsg,async (req,res) =>{
-  try{
-    const note = await notes.addNote(req.body.title,req.body.body)
-    res.status(201).send({
-      message: note.message
-    })
-  }catch(e){
-    console.log(e)
-    res.status(500).send({
-      Error: e
-    })
-  }
+router.post('/add', validator.addmodValidation, validator.errMsg,notes.addNote,async (req,res) =>{
+  return res.status(404)
 })
 
 
@@ -39,21 +31,8 @@ router.post('/add', validator.addmodValidation, validator.errMsg,async (req,res)
  * List api call
  * Using get request
  */
-router.get('/list',async (req,res)=>{
-  try{
-    const note = await notes.listNotes()
-    if(!note){
-      return res.status(504).send({
-        Message: 'Notes empty'
-      })
-    }
-    return res.status(200).send(note)
-  }
-  catch(e){
-    return res.status(500).send({
-      Error: e
-    })
-  }  
+router.get('/list',notes.listNotes,async (req,res)=>{
+    return res.status(404)
 })
 
 
@@ -62,18 +41,8 @@ router.get('/list',async (req,res)=>{
  * delValidation used
  * delete request used
  */
-router.delete('/remove',validator.delVadition,validator.errMsg, async (req,res)=>{
-  try{
-    const note = await notes.removeNote(req.body.title)
-    return res.status(note.status).send({
-      Message: note.message
-    })
-  }catch(e){
-    return res.status(501).send({
-      Error: e
-    })
-  }
-  
+router.delete('/remove',validator.delVadition,validator.errMsg,notes.removeNote, async (req,res)=>{
+  res.status(404)  
 })
 
 /**
@@ -81,18 +50,8 @@ router.delete('/remove',validator.delVadition,validator.errMsg, async (req,res)=
  * addmodValidation used
  * put request used
  */
-router.put('/modify', validator.addmodValidation,validator.errMsg,async(req,res)=>{
- try{
-   note = await notes.modifyNote(req.body.title,req.body.body)
-   return res.status(note.status).send({
-      Message: note.message
-  })
- }  
- catch(e){
-   return res.status(500).send({
-     Error: e
-   })
- }
+router.put('/modify', validator.addmodValidation,validator.errMsg,notes.modifyNote,async(req,res)=>{
+ return res.status(404)
 })
 
 /**
@@ -101,19 +60,8 @@ router.put('/modify', validator.addmodValidation,validator.errMsg,async(req,res)
  * delValidation used
  */
 
-router.get('/get',validator.delVadition,validator.errMsg, async(req,res)=>{
-  try{
-    const note = await notes.getNotes(req.body.title)
-    return res.status(note.status).send({
-      Message: note.message
-    })
-  }
-  catch(e){
-    return res.status(500).send({
-      Error: e
-    })
-  }
-  
+router.get('/get',validator.delVadition,validator.errMsg,notes.getNotes, async(req,res)=>{
+  res.status(400)  
 })
 
 router.all('*', (req, res) => {
