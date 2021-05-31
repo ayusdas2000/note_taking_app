@@ -1,8 +1,9 @@
 var express = require('express');
 var path = require('path');
-const mysql = require('mysql2')
 const db = require('./models')
+const hbs = require('hbs')
 
+const publicDirectoryPath = path.join(__dirname,'/views')
 
 /**
  * Express framework used here
@@ -11,6 +12,10 @@ var indexRouter = require('./routes/index');//api call are made in the routes/in
 var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.static(publicDirectoryPath));
+app.use('/static', express.static('public'));
+app.set('view engine', 'hbs')
+hbs.registerPartials(publicDirectoryPath)
 
 
 app.use('/', indexRouter);

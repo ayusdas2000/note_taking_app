@@ -9,11 +9,12 @@ const validator = require('../public/javascripts/validator.js')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send({
-    App: 'This is a note taking app',
-    Features: ['add note','remove note','list note','modify note','get note'],
-    Author: 'Ayus Das'
-   })
+  // res.send({
+  //   App: 'This is a note taking app',
+  //   Features: ['add note','remove note','list note','modify note','get note'],
+  //   Author: 'Ayus Das'
+  //  })
+  res.render('base')
 });
 
 
