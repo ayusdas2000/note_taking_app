@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const notes = require('../public/javascripts/notes_functions.js')
-const validator = require('../public/javascripts/validator.js')
+const notes = require('../src/notes_functions.js')
+const validator = require('../src/validator.js')
 
 
 
@@ -9,11 +9,9 @@ const validator = require('../public/javascripts/validator.js')
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.send({
-    App: 'This is a note taking app',
-    Features: ['add note','remove note','list note','modify note','get note'],
-    Author: 'Ayus Das'
-   })
+  res.status(200).render('index',{
+    viewTitle: "Insert Note"
+  })
 });
 
 
@@ -22,7 +20,7 @@ router.get('/', function(req, res, next) {
  * Using post request:
  * Using addmodValidation from validator.js
  */
-router.post('/add', validator.addmodValidation, validator.errMsg,notes.addNote,async (req,res) =>{
+router.post('/add', validator.addmodValidation, validator.errMsg,notes.addmodNote,async (req,res) =>{
   return res.status(404)
 })
 
@@ -41,7 +39,7 @@ router.get('/list',notes.listNotes,async (req,res)=>{
  * delValidation used
  * delete request used
  */
-router.delete('/remove',validator.delVadition,validator.errMsg,notes.removeNote, async (req,res)=>{
+router.get('/remove/:id',notes.removeNote, async (req,res)=>{
   res.status(404)  
 })
 
@@ -50,18 +48,8 @@ router.delete('/remove',validator.delVadition,validator.errMsg,notes.removeNote,
  * addmodValidation used
  * put request used
  */
-router.put('/modify', validator.addmodValidation,validator.errMsg,notes.modifyNote,async(req,res)=>{
+router.get('/:id',notes.updateNotes,async(req,res)=>{
  return res.status(404)
-})
-
-/**
- * get api call 
- * get request used
- * delValidation used
- */
-
-router.get('/get',validator.delVadition,validator.errMsg,notes.getNotes, async(req,res)=>{
-  res.status(400)  
 })
 
 router.all('*', (req, res) => {

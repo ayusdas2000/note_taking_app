@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Notes App</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/static/stylesheet/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="data:,">    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    </head>
+    <body>
+        {{>header}}
+        <div class="container">
+            <div class="row">
+                <div class="col l12 s12 m12">
+                    <div class="card blue-grey lighten-5">
+                        <div class="card-content black-text">
+                            <h3><a class="btn btn-secondary" href="/"><i class="fa fa-plus"></i> Create New</a></h3>
+                              <span class="card-title" style="text-align: center;">List of notes</span>
+                              <table class="table table-stripped">
+                                  <thead>
+                                      <tr>
+                                          <th>Title</th>
+                                          <th>Body</th>
+                                          <th></th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {{#each list}}
+                                      <tr>
+                                          <td>{{this.title}}</td>
+                                          <td>{{this.body}}</td>
+                                          <td>
+                                              <a href='/{{this.id}}'><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
+                                              <a href="/remove/{{this.id}}" onclick="return confirm('Are you sure to delete this note ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>
+                                          </td>
+                                      </tr>
+                                      {{/each}}
+                                  </tbody>
+                              </table>               
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
