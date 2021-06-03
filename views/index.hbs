@@ -1,27 +1,44 @@
 <!DOCTYPE html>
+
 <html>
-  <head>
 
-  </head>
-  <body>
-    {{>base}}
+<head>
+    <title>Note Taking Application</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="static/stylesheet/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+</head>
 
-    <div class="container">
+<body style="background-color:#D8E9EC;">
+  {{>header}}
     <div class="row">
-    <div class="col l12 s12 m12">
-      <div class="card blue-grey lighten-5">
-        <div class="card-content black-text">
-          <span class="card-title">Submit your request through the form below.</span>
-          <ul id="dropdown2" class="dropdown-content">
-            <li><a href="#!">one<span class="badge">1</span></a></li>
-            <li><a href="#!">two<span class="new badge">1</span></a></li>
-            <li><a href="#!">three</a></li>
-          </ul>
-          <a class="btn dropdown-trigger" href="#!" data-target="dropdown2">Dropdown<i class="material-icons right">arrow_drop_down</i></a>          
+        <div class="col-md-6 offset-md-3" style="background-color: #fff;margin-top: 25px;padding:20px;">
+            <h3>{{viewTitle}}</h3>
+            <form action="/add" method="POST" autocomplete="off">
+              <input type="hidden" name="id" value="{{data.id}}">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" class="form-control" name="title" placeholder="Title" value="{{data.title}}">
+              </div>
+              <div class="form-group">
+                <label>Body</label>
+                <input type="text" class="form-control" name="body" placeholder="Body" value="{{data.body}}">    
+                  <div class="form-group">
+                  <button type="submit" class="btn btn-info"><i class="fa fa-database"></i> Submit</button>
+                  <a class="btn btn-secondary" href="/list"><i class="fa fa-list-alt"></i> View All</a>
+                </div>
+              </div>
+            </form>
         </div>
-      </div>
     </div>
-  </div>
-</div>
-  </body>
+  {{>footer}}
+</body>
+
 </html>

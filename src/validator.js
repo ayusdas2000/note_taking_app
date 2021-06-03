@@ -20,7 +20,10 @@ const errMsg =(req, res, next)=>{
     const error = validationResult(req)
     if(!error.isEmpty())
     {
-        return res.status(400).send(error.errors[0])
+        console.log(error.errors[0].msg)
+        return res.status(400).render('index',{
+            viewTitle: error.errors[0].msg
+        })
     }
     next()
     }catch(e){

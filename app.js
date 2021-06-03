@@ -1,5 +1,5 @@
-var express = require('express');
-var path = require('path');
+const express = require('express');
+const path = require('path');
 const db = require('./models')
 const hbs = require('hbs')
 
@@ -8,8 +8,8 @@ const publicDirectoryPath = path.join(__dirname,'/views')
 /**
  * Express framework used here
  */
-var indexRouter = require('./routes/index');//api call are made in the routes/index.js
-var app = express();
+const indexRouter = require('./routes/index');//api call are made in the routes/index.js
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(publicDirectoryPath));
