@@ -111,7 +111,7 @@ const updateNotes = async(req,res) =>{
     try{
         const result = await notes_sequelize.findAll({where: {id: req.params.id}})
         res.status(201).render('index',{
-            viewTitle: 'Update Employee',
+            viewTitle: 'Update Notes',
             data:      result[0].dataValues
         })   
     }
